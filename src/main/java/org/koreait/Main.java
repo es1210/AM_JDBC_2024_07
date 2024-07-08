@@ -31,7 +31,7 @@ public class Main {
                 Article article = new Article(id, title, body);
                 articles.add(article);
 
-                System.out.println(article);
+                System.out.println(id + "번 글이 저장됨");
 
                 lastArticleId++;
             }else if(cmd.equals("article list")) {
