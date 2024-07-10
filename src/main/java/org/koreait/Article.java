@@ -1,5 +1,9 @@
 package org.koreait;
 
+import org.koreait.util.Util;
+
+import java.time.LocalDateTime;
+
 import java.util.Map;
 
 public class Article {
@@ -22,7 +26,6 @@ public class Article {
         this.updateDate = (String) articleMap.get("updateDate");
         this.title = (String) articleMap.get("title");
         this.body = (String) articleMap.get("body");
-
     }
 
     public String getRegDate() {
@@ -37,14 +40,7 @@ public class Article {
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
     }
-    @Override
-    public String toString() {
-        return "Article{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", body='" + body + '\'' +
-                '}';
-    }
+
     public Article(int id, String title, String body) {
         this.id = id;
         this.title = title;
