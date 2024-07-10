@@ -1,14 +1,11 @@
 package org.koreait;
-
 import org.koreait.util.DBUtil;
 import org.koreait.util.SecSql;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
 public class App {
     public void run() {
         System.out.println("==프로그램 시작==");
@@ -54,37 +51,25 @@ public class App {
             String title = sc.nextLine();
             System.out.print("내용 : ");
             String body = sc.nextLine();
-
-                SecSql sql = new SecSql();
-
-                sql.append("INSERT INTO article");
-                sql.append("SET regDate = NOW(),");
-                sql.append("updateDate = NOW(),");
-                sql.append("title = ?,", title);
-                sql.append("`body`= ?;", body);
-
-                int id = DBUtil.insert(conn, sql);
-
-                System.out.println(id + "번 글이 생성되었습니다");
-
-
+            SecSql sql = new SecSql();
+            sql.append("INSERT INTO article");
+            sql.append("SET regDate = NOW(),");
+            sql.append("updateDate = NOW(),");
+            sql.append("title = ?,", title);
+            sql.append("`body`= ?;", body);
+            int id = DBUtil.insert(conn, sql);
+            System.out.println(id + "번 글이 생성되었습니다");
         } else if (cmd.equals("article list")) {
             System.out.println("==목록==");
-
             List<Article> articles = new ArrayList<>();
-
-                SecSql sql = new SecSql();
-                sql.append("SELECT *");
-                sql.append("FROM article");
-                sql.append("ORDER BY id DESC");
-
-                List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
-
-                    for (Map<String, Object> articleMap : articleListMap) {
-                        articles.add(new Article(articleMap));
-                    }
-
-
+            SecSql sql = new SecSql();
+            sql.append("SELECT *");
+            sql.append("FROM article");
+            sql.append("ORDER BY id DESC");
+            List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
+            for (Map<String, Object> articleMap : articleListMap) {
+                articles.add(new Article(articleMap));
+            }
             if (articles.size() == 0) {
                 System.out.println("게시글이 없습니다");
                 return 0;
@@ -106,31 +91,22 @@ public class App {
             String title = sc.nextLine().trim();
             System.out.print("새 내용 : ");
             String body = sc.nextLine().trim();
-            PreparedStatement pstmt = null;
-            try {
-                String sql = "UPDATE article";
-                sql += " SET updateDate = NOW()";
+
+                SecSql sql = new SecSql();
+                sql.append("UPDATE article");
+                sql.append("SET updateDate = NOW()");
                 if (title.length() > 0) {
-                    sql += " ,title = '" + title + "'";
+                    sql.append(",title = ?", title);
                 }
                 if (body.length() > 0) {
-                    sql += " ,`body` = '" + body + "'";
+                    sql.append(",`body` = ?", body);
                 }
-                sql += " WHERE id = " + id + ";";
-                System.out.println(sql);
-                pstmt = conn.prepareStatement(sql);
-                pstmt.executeUpdate();
-            } catch (SQLException e) {
-                System.out.println("에러 4 : " + e);
-            } finally {
-                try {
-                    if (pstmt != null && !pstmt.isClosed()) {
-                        pstmt.close();
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+                sql.append("WHERE id = ?", id);
+
+
+                DBUtil.update(conn, sql);
+
+
             System.out.println(id + "번 글이 수정되었습니다.");
         }
         return 0;
