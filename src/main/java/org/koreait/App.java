@@ -1,15 +1,10 @@
 package org.koreait;
 import org.koreait.controller.ArticleController;
 import org.koreait.controller.MemberController;
-import org.koreait.util.DBUtil;
-import org.koreait.util.SecSql;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
-
-
 public class App {
     public void run() {
         System.out.println("==프로그램 시작==");
@@ -24,10 +19,8 @@ public class App {
                 e.printStackTrace();
             }
             String url = "jdbc:mariadb://127.0.0.1:3306/AM_JDBC_2024_07?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul";
-
             try {
                 conn = DriverManager.getConnection(url, "root", "");
-
                 int actionResult = action(conn, sc, cmd);
                 if (actionResult == -1) {
                     System.out.println("==프로그램 종료==");
@@ -54,32 +47,23 @@ public class App {
         MemberController memberController = new MemberController(sc, conn);
         ArticleController articleController = new ArticleController(conn, sc);
 
-        if (cmd.equals("member join")) {
-            memberController.doJoin();
-
-        } else if (cmd.equals("article write")) {
-
-            articleController.doWrite();
-
-        } else if (cmd.equals("article list")) {
-
-            articleController.showList();
-
-        } else if (cmd.startsWith("article modify")) {
-
-            articleController.doModify(cmd);
-
-        } else if (cmd.startsWith("article detail")) {
-
-           articleController.showDetail(cmd);
-
-        } else if (cmd.startsWith("article delete")) {
-
-            articleController.doDelete(cmd);
-        }else {
-            System.out.println("사용할 수 없는 명령어");
-
+            if (cmd.equals("member login")) {
+                memberController.login();
+            } else if (cmd.equals("member join")) {
+                memberController.doJoin();
+            } else if (cmd.equals("article write")) {
+                articleController.doWrite();
+            } else if (cmd.equals("article list")) {
+                articleController.showList();
+            } else if (cmd.startsWith("article modify")) {
+                articleController.doModify(cmd);
+            } else if (cmd.startsWith("article detail")) {
+                articleController.showDetail(cmd);
+            } else if (cmd.startsWith("article delete")) {
+                articleController.doDelete(cmd);
+            } else {
+                System.out.println("사용할 수 없는 명령어");
+            }
+            return 0;
         }
-        return 0;
     }
-}
