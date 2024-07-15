@@ -16,7 +16,7 @@ public class MemberController {
     public MemberController(Scanner sc, Connection conn) {
         this.sc = sc;
         this.conn = conn;
-        this.memberService = new MemberService();
+        this.memberService = new MemberService(conn);
     }
 
     public void doJoin() {
@@ -35,7 +35,7 @@ public class MemberController {
                 continue;
             }
 
-            boolean isLoindIdDup = memberService.isLoginIdDup(conn,loginId);
+            boolean isLoindIdDup = memberService.isLoginIdDup(conn, loginId);
 
             if (isLoindIdDup) {
                 System.out.println(loginId + "는(은) 이미 사용중");
@@ -85,16 +85,7 @@ public class MemberController {
         }
 
 
-        SecSql sql = new SecSql();
-
-        sql.append("INSERT INTO `member`");
-        sql.append("SET regDate = NOW(),");
-        sql.append("updateDate = NOW(),");
-        sql.append("loginId = ?,", loginId);
-        sql.append("loginPw= ?,", loginPw);
-        sql.append("name = ?;", name);
-
-        int id = DBUtil.insert(conn, sql);
+        int id = memberService.doJoin(loginId, loginPw, name);
 
         System.out.println(id + "번 회원이 생성되었습니다");
     }
