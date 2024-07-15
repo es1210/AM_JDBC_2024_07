@@ -1,4 +1,6 @@
 package org.koreait;
+import org.koreait.controller.ArticleController;
+import org.koreait.controller.MemberController;
 import org.koreait.util.DBUtil;
 import org.koreait.util.SecSql;
 import java.sql.*;
@@ -20,9 +22,11 @@ public class App {
                 e.printStackTrace();
             }
             String url = "jdbc:mariadb://127.0.0.1:3306/AM_JDBC_2024_07?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul";
+
             try {
                 conn = DriverManager.getConnection(url, "root", "");
-                int actionResult = doAction(conn, sc, cmd);
+
+                int actionResult = action(conn, sc, cmd);
                 if (actionResult == -1) {
                     System.out.println("==프로그램 종료==");
                     sc.close();
@@ -41,94 +45,15 @@ public class App {
             }
         }
     }
-    private int doAction(Connection conn, Scanner sc, String cmd) {
+    private int action(Connection conn, Scanner sc, String cmd) {
         if (cmd.equals("exit")) {
             return -1;
         }
+        MemberController memberController = new MemberController(sc, conn);
+        ArticleController articleController = new ArticleController();
+
         if (cmd.equals("member join")) {
-            String loginId = null;
-            String loginPw = null;
-            String loginPwConfirm = null;
-            String name = null;
-
-            System.out.println("==회원가입==");
-            while (true) {
-                System.out.print("로그인 아이디 : ");
-                loginId = sc.nextLine().trim();
-
-                if (loginId.length() == 0 || loginId.contains(" ")) {
-                    System.out.println("아이디가 제대로 입력되지 않음");
-                    continue;
-                }
-
-                SecSql sql = new SecSql();
-                sql.append("SELECT COUNT(*) > 0");
-                sql.append("FROM `member`");
-                sql.append("WHERE loginId = ?;", loginId);
-
-                boolean isLoginIdDup = DBUtil.selectRowBooleanValue(conn, sql);
-
-                if (isLoginIdDup) {
-                    System.out.println(loginId + "는(은) 이미 사용중");
-                    continue;
-                }
-
-                break;
-            }
-            while (true) {
-                System.out.print("비밀번호 : ");
-                loginPw = sc.nextLine().trim();
-
-                if (loginPw.length() == 0 || loginPw.contains(" ")) {
-                    System.out.println("비밀번호 똑바로 입력해");
-                    continue;
-                }
-
-                boolean loginPwCheck = true;
-
-                while (true) {
-                    System.out.print("비밀번호 확인: ");
-                    loginPwConfirm = sc.nextLine().trim();
-
-                    if (loginPwConfirm.length() == 0 || loginPwConfirm.contains(" ")) {
-                        System.out.println("확인 똑바로 입력해");
-                        continue;
-                    }
-
-                    if (loginPw.equals(loginPwConfirm) == false) {
-                        System.out.println("일치하지 않아");
-                        loginPwCheck = false;
-                    }
-                    break;
-                }
-
-                if (loginPwCheck) {
-                    break;
-                }
-            }
-            while (true) {
-                System.out.print("이름  : ");
-                name = sc.nextLine().trim();
-
-                if (name.length() == 0 || name.contains(" ")) {
-                    System.out.println("이름이 제대로 입력되지 않음");
-                    continue;
-                }
-                break;
-            }
-
-            SecSql sql = new SecSql();
-
-            sql.append("INSERT INTO `member`");
-            sql.append("SET regDate = NOW(),");
-            sql.append("updateDate = NOW(),");
-            sql.append("loginId = ?,", loginId);
-            sql.append("loginPw = ?,", loginPw);
-            sql.append("`name` = ?;", name);
-
-            int id = DBUtil.insert(conn, sql);
-
-            System.out.println(id + "번 회원이 가입 되었습니다");
+            memberController.doJoin();
 
         } else if (cmd.equals("article write")) {
             System.out.println("==글쓰기==");
